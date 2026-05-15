@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "ComuniApp SAPAL",
+    "slug": "comuniapp-sapal-la-huerta",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "comuniapp-sapal",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "mx.lahuerta.comuniappsapal",
+      "infoPlist": {
+        "NSCameraUsageDescription": "ComuniApp usa la camara para adjuntar evidencias en reportes ciudadanos.",
+        "NSLocationWhenInUseUsageDescription": "ComuniApp usa tu ubicacion para geolocalizar reportes y puntos de interes."
+      }
+    },
+    "android": {
+      "package": "mx.lahuerta.comuniappsapal",
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ],
+      "adaptiveIcon": {
+        "backgroundColor": "#F5F7FA"
+      }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "local-demo"
+      }
+    }
+  }
+}
