@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Card } from "../components/Card";
 import { Header } from "../components/Header";
 import { NoticeCard } from "../components/NoticeCard";
+import { ReportCard } from "../components/ReportCard";
 import { Screen } from "../components/Screen";
 import { demoReports, notices, waterTips } from "../data/mockData";
 import { subscribeOrderedCollection } from "../services/firebase";
@@ -22,13 +23,14 @@ export function HomeScreen() {
     if (filter === "Todos") return remoteNotices;
     return remoteNotices.filter((notice) => notice.type === filter || notice.priority === filter);
   }, [filter, remoteNotices]);
+  const recentReports = reports.slice(0, 3);
 
   const highPriority = remoteNotices.filter((notice) => notice.priority === "Alta").length;
 
   return (
     <Screen>
       <Header
-        eyebrow="SAPAL LA HUERTA"
+        eyebrow="SAPALH LA HUERTA"
         title="Avisos del agua"
         subtitle="Consulta comunicados, cortes y reportes ciudadanos del municipio."
         right={
@@ -51,11 +53,16 @@ export function HomeScreen() {
         <View style={styles.tipCopy}>
           <Text style={styles.tipTitle}>Funcion extra agregada</Text>
           <Text style={styles.tipText}>
-            Inclui consejos de cuidado y seguimiento de reportes para que la app no solo reciba
-            denuncias, tambien eduque y ayude a priorizar atencion.
+            La app integra avisos oficiales, reportes ciudadanos y seguimiento del servicio en un
+            mismo flujo para fortalecer la comunicacion con SAPALH.
           </Text>
         </View>
       </Card>
+
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Avisos oficiales</Text>
+        <Text style={styles.sectionMeta}>{filtered.length} visibles</Text>
+      </View>
 
       <View style={styles.filters}>
         {["Todos", "Alta", "Mantenimiento", "Comunicado"].map((item) => (
@@ -73,6 +80,14 @@ export function HomeScreen() {
 
       {filtered.map((notice) => (
         <NoticeCard key={notice.id} notice={notice} />
+      ))}
+
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Reportes recientes</Text>
+        <Text style={styles.sectionMeta}>{recentReports.length} activos</Text>
+      </View>
+      {recentReports.map((report) => (
+        <ReportCard key={report.id} report={report} />
       ))}
 
       <Text style={styles.sectionTitle}>Buenas practicas</Text>
@@ -113,11 +128,13 @@ const styles = StyleSheet.create({
   },
   metrics: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 10,
     marginBottom: 14
   },
   metric: {
-    flex: 1,
+    flexGrow: 1,
+    flexBasis: 100,
     padding: 12,
     minHeight: 106,
     justifyContent: "space-between"
@@ -190,12 +207,24 @@ const styles = StyleSheet.create({
   filterTextActive: {
     color: "#FFFFFF"
   },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    justifyContent: "space-between",
+    gap: 12,
+    marginTop: 4,
+    marginBottom: 10
+  },
   sectionTitle: {
     color: colors.text,
     fontSize: 22,
     fontWeight: "900",
-    marginTop: 10,
     marginBottom: 10
+  },
+  sectionMeta: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "800"
   },
   tipRow: {
     flexDirection: "row",

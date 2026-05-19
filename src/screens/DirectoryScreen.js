@@ -45,7 +45,7 @@ export function DirectoryScreen() {
       <Card style={styles.protocol}>
         <Text style={styles.protocolTitle}>Como funciona un reporte</Text>
         <Step number="1" text="La persona envia descripcion, ubicacion y evidencia." />
-        <Step number="2" text="SAPAL recibe el caso en Firestore con estado Recibido." />
+        <Step number="2" text="SAPALH recibe el caso en Firestore con estado Recibido." />
         <Step number="3" text="El personal puede revisar, priorizar y actualizar el seguimiento." />
       </Card>
     </Screen>

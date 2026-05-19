@@ -8,11 +8,12 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AuthScreen } from "./src/screens/AuthScreen";
 import { HomeScreen } from "./src/screens/HomeScreen";
-import { ReportScreen } from "./src/screens/ReportScreen";
-import { MapScreen } from "./src/screens/MapScreen";
 import { DirectoryScreen } from "./src/screens/DirectoryScreen";
 import { ProfileScreen } from "./src/screens/ProfileScreen";
-import { AuthContext } from "./src/context/AuthContext";
+import { AuthContext, useAuth } from "./src/context/AuthContext";
+import { Card } from "./src/components/Card";
+import { Header } from "./src/components/Header";
+import { Screen } from "./src/components/Screen";
 import { auth, firebaseReady, loginAnonymous, logout, onAuthChange } from "./src/services/firebase";
 import { colors, radius, shadow } from "./src/theme";
 
@@ -31,10 +32,58 @@ const navigationTheme = {
   }
 };
 
+function LazyNativeScreen({ loader, eyebrow, title, subtitle }) {
+  try {
+    const Component = loader();
+    return <Component />;
+  } catch (error) {
+    return (
+      <Screen>
+        <Header eyebrow={eyebrow} title={title} subtitle={subtitle} />
+        <Card style={styles.nativeFallback}>
+          <Text style={styles.nativeFallbackTitle}>No se pudo abrir esta seccion en este momento</Text>
+          <Text style={styles.nativeFallbackText}>
+            Reinicia Expo Go con cache limpia y vuelve a intentar. Si continua, revisa que el
+            simulador de iOS este funcionando correctamente.
+          </Text>
+          {__DEV__ ? (
+            <Text style={styles.nativeFallbackError}>
+              {error?.message || "Error desconocido al cargar el modulo nativo."}
+            </Text>
+          ) : null}
+        </Card>
+      </Screen>
+    );
+  }
+}
+
+function ReportScreenEntry() {
+  return (
+    <LazyNativeScreen
+      loader={() => require("./src/screens/ReportScreen").ReportScreen}
+      eyebrow="REPORTE CIUDADANO"
+      title="Reportar mal uso"
+      subtitle="Estamos cargando la camara y el formulario de reporte."
+    />
+  );
+}
+
+function MapScreenEntry() {
+  return (
+    <LazyNativeScreen
+      loader={() => require("./src/screens/MapScreen").MapScreen}
+      eyebrow="MAPA INTERACTIVO"
+      title="Puntos de interes"
+      subtitle="Estamos cargando el mapa y los servicios de ubicacion."
+    />
+  );
+}
+
 function Tabs() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
+        lazy: true,
         headerShown: false,
         tabBarActiveTintColor: colors.blue,
         tabBarInactiveTintColor: colors.muted,
@@ -53,8 +102,8 @@ function Tabs() {
       })}
     >
       <Tab.Screen name="Inicio" component={HomeScreen} />
-      <Tab.Screen name="Reportar" component={ReportScreen} />
-      <Tab.Screen name="Mapa" component={MapScreen} />
+      <Tab.Screen name="Reportar" component={ReportScreenEntry} />
+      <Tab.Screen name="Mapa" component={MapScreenEntry} />
       <Tab.Screen name="Directorio" component={DirectoryScreen} />
       <Tab.Screen name="Perfil" component={ProfileScreen} />
     </Tab.Navigator>
@@ -168,6 +217,27 @@ const styles = StyleSheet.create({
   },
   tabLabel: {
     fontSize: 11,
+    fontWeight: "700"
+  },
+  nativeFallback: {
+    gap: 12
+  },
+  nativeFallbackTitle: {
+    color: colors.text,
+    fontSize: 18,
+    lineHeight: 23,
+    fontWeight: "900"
+  },
+  nativeFallbackText: {
+    color: colors.muted,
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: "600"
+  },
+  nativeFallbackError: {
+    color: colors.red,
+    fontSize: 12,
+    lineHeight: 18,
     fontWeight: "700"
   }
 });

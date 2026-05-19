@@ -1,28 +1,46 @@
-# ComuniApp SAPAL La Huerta
+# ComuniApp SAPALH La Huerta
 
-Aplicacion movil hibrida en React Native + Expo para comunicados de SAPAL, reportes anonimos de mal uso del agua, mapa de puntos de interes y directorio de servicios locales.
+Aplicacion movil en React Native + Expo para comunicados de SAPALH, reportes anonimos de mal uso del agua, mapa de puntos de interes y directorio de servicios locales en La Huerta, Jalisco.
 
 ## Funciones incluidas
 
 - Navegacion inferior entre Inicio, Reportar, Mapa, Directorio y Perfil.
-- Pantalla principal con avisos, cortes, mantenimiento y filtros.
+- Pantalla principal con avisos oficiales, filtros y reportes recientes.
 - Reporte ciudadano anonimo con formulario validado.
 - Camara integrada para adjuntar evidencia fotografica.
 - GPS para capturar la ubicacion del reporte.
-- Mapa interactivo con marcadores de SAPAL, infraestructura, pozos y reportes.
+- Mapa interactivo con marcadores de SAPALH, infraestructura, pozos y reportes.
 - Firebase Authentication con correo/contrasena o acceso anonimo.
 - Firestore para leer `notices` y guardar `reports`.
-- Componentes reutilizables: `Screen`, `Header`, `Card`, `PrimaryButton`, `FormInput`, `NoticeCard`.
+- Componentes reutilizables: `Screen`, `Header`, `Card`, `PrimaryButton`, `FormInput`, `NoticeCard`, `ReportCard`.
 - Modo demo si no hay credenciales Firebase, util para Expo Go y presentacion.
+
+## Cumplimiento de requisitos
+
+- React Native, Expo, Firebase, Firestore y React Navigation integrados en el proyecto.
+- Navegacion entre pantallas con `Stack` y `Bottom Tabs`.
+- Inicio con listado real de avisos y reportes.
+- Formularios con validaciones en autenticacion y reporte.
+- Uso de camara con `expo-camera`.
+- Uso de GPS con `expo-location`.
+- Componentes reutilizables y tema centralizado.
+- Diseno responsivo mejorado para movil y tablet.
+- Repositorio Git con remoto GitHub configurado.
 
 ## Ejecutar en Expo Go
 
 ```bash
 npm install
-npm run start
+npx expo start
 ```
 
-Despues escanea el QR con Expo Go en Android o iOS.
+En VSCode, la terminal del proyecto ya queda configurada con `EXPO_OFFLINE=1`, asi que `npx expo start` evita el prompt de Expo y abre mejor en Expo Go.
+
+Si usas una terminal externa, puedes correr:
+
+```bash
+EXPO_OFFLINE=1 npx expo start --offline --clear
+```
 
 ## Configurar Firebase
 
@@ -51,6 +69,8 @@ eas build -p android --profile preview
 
 El perfil `preview` en `eas.json` genera APK.
 
-## Funcion extra agregada
+## Presentacion y demo
 
-Agregue seguimiento por estado y consejos de cuidado del agua. Esto hace que la app no solo sirva para denunciar mal uso, sino tambien para educar a la comunidad y explicar el flujo de atencion de SAPAL durante la demo.
+- Presentacion editable: [PRESENTACION_COMUNIAPP_SAPALH.md](PRESENTACION_COMUNIAPP_SAPALH.md)
+- Matriz de cumplimiento: [CUMPLIMIENTO_REQUISITOS.md](CUMPLIMIENTO_REQUISITOS.md)
+- Demo funcional validada en Expo Go sobre simulador iOS.

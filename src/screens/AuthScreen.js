@@ -58,7 +58,7 @@ export function AuthScreen() {
         <View style={styles.logo}>
           <Ionicons name="water" color="#FFFFFF" size={38} />
         </View>
-        <Text style={styles.title}>ComuniApp SAPAL</Text>
+        <Text style={styles.title}>ComuniApp SAPALH</Text>
         <Text style={styles.subtitle}>
           Comunicados, reportes anonimos y mapa del agua para La Huerta, Jalisco.
         </Text>
