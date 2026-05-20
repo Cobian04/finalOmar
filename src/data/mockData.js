@@ -3,7 +3,7 @@ export const notices = [
     id: "notice-1",
     title: "Baja presion en colonia Centro",
     message:
-      "SAPAL La Huerta informa baja presion por mantenimiento preventivo en la red principal. El servicio se normalizara durante la tarde.",
+      "SAPALH La Huerta informa baja presion por mantenimiento preventivo en la red principal. El servicio se normalizara durante la tarde.",
     type: "Mantenimiento",
     priority: "Alta",
     date: "Hoy, 8:30 AM",
@@ -34,7 +34,7 @@ export const notices = [
 export const pointsOfInterest = [
   {
     id: "poi-1",
-    title: "Oficina SAPAL La Huerta",
+    title: "Oficina SAPALH La Huerta",
     description: "Pagos, aclaraciones, reportes y atencion ciudadana.",
     latitude: 19.4859,
     longitude: -104.6438,
@@ -73,7 +73,7 @@ export const pointsOfInterest = [
 export const directory = [
   {
     id: "dir-1",
-    name: "SAPAL La Huerta",
+    name: "SAPALH La Huerta",
     role: "Atencion y administracion del agua potable",
     phone: "357 384 0000",
     schedule: "Lun a Vie, 9:00 - 15:00",
@@ -105,6 +105,7 @@ export const demoReports = [
     status: "En revision",
     anonymous: true,
     createdAtLabel: "Hoy",
+    reference: "Calle Hidalgo, zona Centro",
     latitude: 19.4875,
     longitude: -104.6514
   },
@@ -115,13 +116,14 @@ export const demoReports = [
     status: "Recibido",
     anonymous: true,
     createdAtLabel: "Ayer",
+    reference: "Colonia La Concepcion",
     latitude: 19.4832,
     longitude: -104.6419
   }
 ];
 
 export const waterTips = [
-  "Reporta fugas con foto y ubicacion para que SAPAL priorice la cuadrilla.",
+  "Reporta fugas con foto y ubicacion para que SAPALH priorice la cuadrilla.",
   "Usa cubeta para lavar vehiculos y evita dejar la manguera abierta.",
   "Si detectas baja presion, revisa avisos antes de levantar un reporte duplicado."
 ];

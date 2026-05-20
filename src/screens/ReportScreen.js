@@ -95,7 +95,7 @@ export function ReportScreen() {
         latitude: location.latitude,
         longitude: location.longitude
       });
-      Alert.alert("Reporte enviado", "SAPAL recibio el reporte con estado inicial: Recibido.");
+      Alert.alert("Reporte enviado", "SAPALH recibio el reporte con estado inicial: Recibido.");
       setCategory("Fuga");
       setDescription("");
       setReference("");
@@ -115,7 +115,7 @@ export function ReportScreen() {
       <Header
         eyebrow="REPORTE CIUDADANO"
         title="Reportar mal uso"
-        subtitle="Envia evidencia anonima con foto y GPS para que SAPAL pueda revisar el caso."
+        subtitle="Envia evidencia anonima con foto y GPS para que SAPALH pueda revisar el caso."
       />
 
       <Card style={styles.card}>

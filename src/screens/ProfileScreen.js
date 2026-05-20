@@ -50,7 +50,7 @@ export function ProfileScreen() {
         <Text style={styles.ideaText}>
           Ademas del reporte anonimo, agregue seguimiento por estado: Recibido, En revision y
           Atendido. Esto ayuda a mostrar trazabilidad durante la demo y conecta mejor con la
-          operacion real de SAPAL.
+          operacion real de SAPALH.
         </Text>
       </Card>
 
