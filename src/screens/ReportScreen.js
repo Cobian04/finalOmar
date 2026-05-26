@@ -3,6 +3,7 @@ import {
   Alert,
   Image,
   Modal,
+  Platform,
   Pressable,
   StyleSheet,
   Switch,
@@ -12,6 +13,7 @@ import {
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as Location from "expo-location";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 import { Card } from "../components/Card";
 import { FormInput } from "../components/FormInput";
@@ -22,8 +24,13 @@ import { createReport } from "../services/firebase";
 import { colors, radius } from "../theme";
 
 const categories = ["Fuga", "Mal uso", "Toma irregular", "Baja presion", "Otro"];
+const fallbackLocation = {
+  latitude: 19.4859,
+  longitude: -104.6438
+};
 
-export function ReportScreen() {
+export function ReportScreen({ onGoHome }) {
+  const navigation = useNavigation();
   const [category, setCategory] = useState("Fuga");
   const [description, setDescription] = useState("");
   const [reference, setReference] = useState("");
@@ -32,21 +39,44 @@ export function ReportScreen() {
   const [photo, setPhoto] = useState(null);
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
+  const [locating, setLocating] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef(null);
 
-  async function captureLocation() {
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("Permiso requerido", "Activa la ubicacion para geolocalizar el reporte.");
-      return;
-    }
-    const current = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
-    setLocation({
-      latitude: current.coords.latitude,
-      longitude: current.coords.longitude
+  function clearError(field) {
+    setErrors((currentErrors) => {
+      if (!currentErrors[field]) return currentErrors;
+      const nextErrors = { ...currentErrors };
+      delete nextErrors[field];
+      return nextErrors;
     });
+  }
+
+  async function captureLocation() {
+    try {
+      setLocating(true);
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permiso requerido", "Activa la ubicacion para geolocalizar el reporte.");
+        return;
+      }
+      const current = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+      setLocation({
+        latitude: current.coords.latitude,
+        longitude: current.coords.longitude
+      });
+      setErrors((currentErrors) => ({ ...currentErrors, location: undefined }));
+    } catch {
+      setLocation(fallbackLocation);
+      setErrors((currentErrors) => ({ ...currentErrors, location: undefined }));
+      Alert.alert(
+        "Ubicacion de referencia",
+        "El simulador no entrego GPS real. Use la ubicacion de SAPALH La Huerta para que puedas completar la demo."
+      );
+    } finally {
+      setLocating(false);
+    }
   }
 
   async function openCamera() {
@@ -62,8 +92,21 @@ export function ReportScreen() {
 
   async function takePhoto() {
     if (!cameraRef.current) return;
-    const picture = await cameraRef.current.takePictureAsync({ quality: 0.72 });
-    setPhoto(picture);
+    try {
+      const picture = await cameraRef.current.takePictureAsync({ quality: 0.72 });
+      setPhoto(picture);
+      setCameraOpen(false);
+    } catch {
+      setDemoEvidence();
+    }
+  }
+
+  function setDemoEvidence() {
+    setPhoto({
+      uri: null,
+      fallback: true,
+      label: Platform.OS === "ios" ? "Evidencia demo del simulador iOS" : "Evidencia demo"
+    });
     setCameraOpen(false);
   }
 
@@ -86,16 +129,15 @@ export function ReportScreen() {
     if (!validate()) return;
     try {
       setSaving(true);
-      await createReport({
+      const savedReport = await createReport({
         category,
         description: description.trim(),
         reference: reference.trim(),
         anonymous,
-        photoUri: photo?.uri || null,
+        photoUri: photo?.uri || (photo?.fallback ? "simulator-demo-evidence" : null),
         latitude: location.latitude,
         longitude: location.longitude
       });
-      Alert.alert("Reporte enviado", "SAPALH recibio el reporte con estado inicial: Recibido.");
       setCategory("Fuga");
       setDescription("");
       setReference("");
@@ -103,6 +145,12 @@ export function ReportScreen() {
       setLocation(null);
       setPhoto(null);
       setErrors({});
+      if (onGoHome) {
+        onGoHome();
+      } else {
+        navigation.navigate("Inicio");
+      }
+      Alert.alert("Reporte enviado", `SAPALH recibio el reporte ${savedReport.id}.`);
     } catch (err) {
       Alert.alert("No se pudo enviar", err.message);
     } finally {
@@ -137,7 +185,10 @@ export function ReportScreen() {
         <FormInput
           label="Descripcion"
           value={description}
-          onChangeText={setDescription}
+          onChangeText={(value) => {
+            setDescription(value);
+            clearError("description");
+          }}
           multiline
           placeholder="Ej. Una persona esta desperdiciando agua con manguera abierta..."
           error={errors.description}
@@ -147,7 +198,10 @@ export function ReportScreen() {
         <FormInput
           label="Referencia"
           value={reference}
-          onChangeText={setReference}
+          onChangeText={(value) => {
+            setReference(value);
+            clearError("reference");
+          }}
           placeholder="Calle, colonia, negocio cercano"
           error={errors.reference}
           style={styles.field}
@@ -172,6 +226,7 @@ export function ReportScreen() {
             icon={location ? "location" : "navigate"}
             variant={location ? "secondary" : "primary"}
             onPress={captureLocation}
+            loading={locating}
             style={styles.action}
           />
           <PrimaryButton
@@ -194,7 +249,14 @@ export function ReportScreen() {
           </View>
         ) : null}
 
-        {photo ? <Image source={{ uri: photo.uri }} style={styles.preview} /> : null}
+        {photo?.uri ? <Image source={{ uri: photo.uri }} style={styles.preview} /> : null}
+        {photo?.fallback ? (
+          <View style={styles.demoPreview}>
+            <Ionicons name="image" color={colors.blue} size={28} />
+            <Text style={styles.demoPreviewTitle}>Evidencia registrada</Text>
+            <Text style={styles.demoPreviewText}>{photo.label}</Text>
+          </View>
+        ) : null}
 
         <PrimaryButton
           title="Enviar reporte"
@@ -215,7 +277,9 @@ export function ReportScreen() {
             <Pressable onPress={takePhoto} style={styles.shutter}>
               <View style={styles.shutterInner} />
             </Pressable>
-            <View style={styles.cameraButton} />
+            <Pressable onPress={setDemoEvidence} style={styles.cameraButton}>
+              <Ionicons name="image" color="#FFFFFF" size={24} />
+            </Pressable>
           </View>
         </View>
       </Modal>
@@ -315,6 +379,30 @@ const styles = StyleSheet.create({
     height: 210,
     borderRadius: radius.lg,
     backgroundColor: colors.surfaceAlt
+  },
+  demoPreview: {
+    minHeight: 142,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.blueSoft,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 18
+  },
+  demoPreviewTitle: {
+    color: colors.text,
+    fontSize: 17,
+    fontWeight: "900",
+    marginTop: 10
+  },
+  demoPreviewText: {
+    color: colors.muted,
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: "700",
+    marginTop: 4,
+    textAlign: "center"
   },
   submit: {
     marginTop: 2

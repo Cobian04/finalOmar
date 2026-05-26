@@ -21,6 +21,7 @@ export function MapScreen() {
   const [reports, setReports] = useState(demoReports);
   const [region, setRegion] = useState(laHuertaRegion);
   const [selected, setSelected] = useState(pointsOfInterest[0]);
+  const [locating, setLocating] = useState(false);
 
   useEffect(() => subscribeOrderedCollection("reports", demoReports, setReports), []);
 
@@ -43,18 +44,39 @@ export function MapScreen() {
   const markers = [...pointsOfInterest, ...reportMarkers];
 
   async function locateMe() {
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("Permiso requerido", "Activa GPS para centrar el mapa en tu ubicacion.");
-      return;
+    try {
+      setLocating(true);
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permiso requerido", "Activa GPS para centrar el mapa en tu ubicacion.");
+        return;
+      }
+      const current = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      setRegion({
+        latitude: current.coords.latitude,
+        longitude: current.coords.longitude,
+        latitudeDelta: 0.018,
+        longitudeDelta: 0.018
+      });
+      setSelected({
+        id: "current-location",
+        title: "Tu ubicacion",
+        description: "Ubicacion GPS capturada para referencia del reporte.",
+        type: "GPS",
+        latitude: current.coords.latitude,
+        longitude: current.coords.longitude,
+        color: colors.blue
+      });
+    } catch {
+      setRegion({ ...laHuertaRegion, latitudeDelta: 0.018, longitudeDelta: 0.018 });
+      setSelected(pointsOfInterest[0]);
+      Alert.alert(
+        "Ubicacion de referencia",
+        "El simulador no entrego GPS real. Centre el mapa en SAPALH La Huerta."
+      );
+    } finally {
+      setLocating(false);
     }
-    const current = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-    setRegion({
-      latitude: current.coords.latitude,
-      longitude: current.coords.longitude,
-      latitudeDelta: 0.018,
-      longitudeDelta: 0.018
-    });
   }
 
   return (
@@ -81,8 +103,8 @@ export function MapScreen() {
           ))}
         </MapView>
 
-        <Pressable onPress={locateMe} style={styles.locate}>
-          <Ionicons name="navigate" color={colors.blue} size={24} />
+        <Pressable onPress={locateMe} disabled={locating} style={[styles.locate, locating && styles.locating]}>
+          <Ionicons name={locating ? "hourglass" : "navigate"} color={colors.blue} size={24} />
         </Pressable>
 
         <View style={styles.sheet}>
@@ -122,6 +144,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     ...shadow.card
+  },
+  locating: {
+    opacity: 0.7
   },
   sheet: {
     position: "absolute",

@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 import { Card } from "../components/Card";
@@ -11,6 +11,14 @@ import { colors, radius } from "../theme";
 
 export function ProfileScreen() {
   const { user, firebaseReady, signOut } = useAuth();
+
+  async function handleSignOut() {
+    try {
+      await signOut();
+    } catch (err) {
+      Alert.alert("No se pudo cerrar sesion", err.message);
+    }
+  }
 
   return (
     <Screen>
@@ -54,7 +62,7 @@ export function ProfileScreen() {
         </Text>
       </Card>
 
-      <PrimaryButton title="Cerrar sesion" icon="log-out" variant="secondary" onPress={signOut} />
+      <PrimaryButton title="Cerrar sesion" icon="log-out" variant="secondary" onPress={handleSignOut} />
     </Screen>
   );
 }

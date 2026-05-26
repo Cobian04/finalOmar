@@ -1,5 +1,5 @@
 import React from "react";
-import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Linking, Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 import { Card } from "../components/Card";
@@ -9,6 +9,23 @@ import { directory } from "../data/mockData";
 import { colors, radius } from "../theme";
 
 export function DirectoryScreen() {
+  async function callService(phone) {
+    const phoneNumber = phone.replaceAll(" ", "");
+    const url = `tel:${phoneNumber}`;
+
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+        return;
+      }
+
+      Alert.alert("Telefono", `Marca manualmente al ${phone}.`);
+    } catch {
+      Alert.alert("Telefono", `No se pudo abrir la llamada. Marca manualmente al ${phone}.`);
+    }
+  }
+
   return (
     <Screen>
       <Header
@@ -33,7 +50,7 @@ export function DirectoryScreen() {
           <Info icon="location-outline" text={item.address} />
 
           <Pressable
-            onPress={() => Linking.openURL(`tel:${item.phone.replaceAll(" ", "")}`)}
+            onPress={() => callService(item.phone)}
             style={styles.call}
           >
             <Ionicons name="call" color="#FFFFFF" size={18} />

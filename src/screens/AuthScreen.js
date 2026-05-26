@@ -15,6 +15,7 @@ export function AuthScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [anonLoading, setAnonLoading] = useState(false);
   const [error, setError] = useState("");
 
   const isRegister = mode === "register";
@@ -46,6 +47,17 @@ export function AuthScreen() {
       Alert.alert("No se pudo iniciar sesion", err.message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function submitAnonymous() {
+    try {
+      setAnonLoading(true);
+      await signInAnonymous();
+    } catch (err) {
+      Alert.alert("No se pudo entrar anonimamente", err.message);
+    } finally {
+      setAnonLoading(false);
     }
   }
 
@@ -113,7 +125,8 @@ export function AuthScreen() {
           title="Continuar anonimamente"
           icon="eye-off"
           variant="secondary"
-          onPress={signInAnonymous}
+          onPress={submitAnonymous}
+          loading={anonLoading}
           style={styles.secondary}
         />
         {!firebaseReady ? (

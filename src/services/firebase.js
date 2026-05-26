@@ -18,6 +18,8 @@ import {
   serverTimestamp
 } from "firebase/firestore";
 
+import { demoReports } from "../data/mockData";
+
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -33,6 +35,20 @@ const app = firebaseReady ? getApps()[0] || initializeApp(firebaseConfig) : null
 
 export const auth = app ? getAuth(app) : null;
 export const db = app ? getFirestore(app) : null;
+
+let localReports = [...demoReports];
+const localReportListeners = new Set();
+
+function notifyLocalReports() {
+  localReportListeners.forEach((callback) => callback([...localReports]));
+}
+
+function getCreatedAtLabel() {
+  return new Intl.DateTimeFormat("es-MX", {
+    hour: "numeric",
+    minute: "2-digit"
+  }).format(new Date());
+}
 
 export function onAuthChange(callback) {
   if (!auth) return () => {};
@@ -57,6 +73,12 @@ export function logout() {
 
 export function subscribeOrderedCollection(collectionName, fallback, callback) {
   if (!db) {
+    if (collectionName === "reports") {
+      callback([...localReports]);
+      localReportListeners.add(callback);
+      return () => localReportListeners.delete(callback);
+    }
+
     callback(fallback);
     return () => {};
   }
@@ -74,7 +96,15 @@ export function subscribeOrderedCollection(collectionName, fallback, callback) {
 
 export async function createReport(report) {
   if (!db) {
-    return { id: `local-${Date.now()}`, ...report };
+    const localReport = {
+      id: `local-${Date.now()}`,
+      ...report,
+      status: "Recibido",
+      createdAtLabel: `Hoy, ${getCreatedAtLabel()}`
+    };
+    localReports = [localReport, ...localReports];
+    notifyLocalReports();
+    return localReport;
   }
 
   const doc = await addDoc(collection(db, "reports"), {

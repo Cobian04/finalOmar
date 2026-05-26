@@ -32,10 +32,10 @@ const navigationTheme = {
   }
 };
 
-function LazyNativeScreen({ loader, eyebrow, title, subtitle }) {
+function LazyNativeScreen({ loader, eyebrow, title, subtitle, componentProps }) {
   try {
     const Component = loader();
-    return <Component />;
+    return <Component {...componentProps} />;
   } catch (error) {
     return (
       <Screen>
@@ -57,13 +57,16 @@ function LazyNativeScreen({ loader, eyebrow, title, subtitle }) {
   }
 }
 
-function ReportScreenEntry() {
+function ReportScreenEntry({ navigation }) {
   return (
     <LazyNativeScreen
       loader={() => require("./src/screens/ReportScreen").ReportScreen}
       eyebrow="REPORTE CIUDADANO"
       title="Reportar mal uso"
       subtitle="Estamos cargando la camara y el formulario de reporte."
+      componentProps={{
+        onGoHome: () => navigation.navigate("Inicio")
+      }}
     />
   );
 }
